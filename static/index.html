@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ank — AI Voice Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --surface: #111114;
+    --border: #1e1e24;
+    --border-light: #2a2a32;
+    --text: #e8e8f0;
+    --muted: #52525e;
+    --accent: #c8b8ff;
+    --accent-dim: rgba(200,184,255,0.08);
+    --user-bg: #161620;
+    --ai-bg: #13131a;
+    --success: #6ee7b7;
+    --danger: #fca5a5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  .logo-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .logo span { color: var(--accent); font-style: italic; }
+
+  .logo-by {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .logo-by strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse-dot 2s ease infinite;
+  }
+
+  .status-dot.recording {
+    background: var(--danger);
+    box-shadow: 0 0 8px var(--danger);
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  /* CHAT AREA */
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    scroll-behavior: smooth;
+  }
+
+  #chat::-webkit-scrollbar { width: 4px; }
+  #chat::-webkit-scrollbar-track { background: transparent; }
+  #chat::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--muted);
+    text-align: center;
+    padding: 40px;
+  }
+
+  .empty-state .big-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.8rem;
+    color: var(--border-light);
+    line-height: 1;
+    font-style: italic;
+  }
+
+  .empty-state p {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* MESSAGES */
+  .message {
+    display: flex;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    animation: fadeUp 0.3s ease;
+    max-width: 60%;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .message.user {
+    background: var(--user-bg);
+    border: 1px solid var(--border);
+    flex-direction: row-reverse;
+    margin-left: auto;
+    margin-right: 4%;
+    align-self: flex-end;
+  }
+
+  .message.assistant {
+    background: var(--ai-bg);
+    border: 1px solid var(--border);
+    margin-right: auto;
+    margin-left: 4%;
+    align-self: flex-start;
+  }
+
+  .msg-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .message.user .msg-avatar {
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,184,255,0.15);
+    color: var(--accent);
+  }
+
+  .message.assistant .msg-avatar {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-light);
+    color: var(--muted);
+  }
+
+  .msg-body { flex: 1; }
+
+  .msg-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .message.user .msg-label { text-align: right; }
+
+  .msg-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .message.user .msg-text { text-align: right; }
+
+  .play-btn {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .play-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .thinking {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 0;
+  }
+
+  .thinking span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: blink 1.2s ease infinite;
+  }
+
+  .thinking span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* BOTTOM */
+  .bottom {
+    border-top: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+
+  #waveform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 32px;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  #waveform.active { opacity: 1; }
+
+  .wave-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    height: 4px;
+    opacity: 0.15;
+    transition: height 0.1s ease, opacity 0.1s ease;
+  }
+
+  .mic-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #mic-btn {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-light);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+  }
+
+  #mic-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  #mic-btn.recording {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(252,165,165,0.08);
+    animation: mic-pulse 1.5s ease infinite;
+  }
+
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 8px rgba(252,165,165,0.06), 0 0 0 16px rgba(252,165,165,0.03); }
+    50% { box-shadow: 0 0 0 12px rgba(252,165,165,0.04), 0 0 0 24px rgba(252,165,165,0.01); }
+  }
+
+  #mic-btn svg { width: 22px; height: 22px; }
+
+  .mic-hint {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  #send-btn {
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,184,255,0.25);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 10px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    animation: fadeUp 0.2s ease;
+  }
+
+  #send-btn:hover { background: rgba(200,184,255,0.15); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="logo">An<span>k</span></div>
+    <div class="logo-by">by <strong>Mohammed Arsh</strong></div>
+  </div>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Ready</span>
+  </div>
+  <button class="reset-btn" onclick="resetChat()">New Chat</button>
+</header>
+
+<div id="chat">
+  <div class="empty-state" id="empty-state">
+    <div class="big-text">Say something.</div>
+    <p>Click the mic or hold Space</p>
+  </div>
+</div>
+
+<div class="bottom">
+  <div id="waveform"></div>
+  <div class="mic-wrap">
+    <button id="mic-btn" onclick="toggleRecording()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="2" width="6" height="12" rx="3"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="19" x2="12" y2="22"/>
+        <line x1="8" y1="22" x2="16" y2="22"/>
+      </svg>
+    </button>
+    <span class="mic-hint" id="mic-hint">Click or hold Space to speak</span>
+  </div>
+  <button id="send-btn" onclick="submitRecording()" style="display:none">Send</button>
+</div>
+
+<script>
+  // --- WAVEFORM ---
+const waveform = document.getElementById('waveform');
+const BAR_COUNT = 28;
+const bars = [];
+waveform.innerHTML = ''; // clear any stray content
+for (let i = 0; i < BAR_COUNT; i++) {
+  const b = document.createElement('div');
+  b.className = 'wave-bar';
+  waveform.appendChild(b);
+  bars.push(b);
+}
+
+  let waveInterval = null;
+
+  function startWaveform(stream) {
+    const ctx = new AudioContext();
+    const source = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 64;
+    source.connect(analyser);
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    waveform.classList.add('active');
+    waveInterval = setInterval(() => {
+    analyser.getByteFrequencyData(dataArray);
+    const half = BAR_COUNT / 2;
+    bars.forEach((bar, i) => {
+    const distFromCenter = Math.abs(i - half + 0.5);
+    const idx = Math.floor(distFromCenter * dataArray.length / half);
+    const val = dataArray[Math.min(idx, dataArray.length - 1)] / 255;
+    bar.style.height = Math.max(4, val * 28) + 'px';
+    bar.style.opacity = 0.15 + val * 0.85;
+  });
+  }, 60);
+  }
+
+  function stopWaveform() {
+    clearInterval(waveInterval);
+    waveform.classList.remove('active');
+    bars.forEach(b => { b.style.height = '4px'; b.style.opacity = '0.15'; });
+  }
+
+  // --- STATE ---
+  let mediaRecorder = null;
+  let chunks = [];
+  let stream = null;
+  let isRecording = false;
+  let spaceHeld = false;
+  let isBusy = false;
+  let currentAudio = null;
+
+  function setMicEnabled(enabled) {
+    const btn = document.getElementById('mic-btn');
+    const hint = document.getElementById('mic-hint');
+    btn.style.opacity = enabled ? '1' : '0.3';
+    btn.style.pointerEvents = enabled ? 'auto' : 'none';
+    hint.textContent = enabled ? 'Click or hold Space to speak' : 'Please wait...';
+  }
+
+  async function toggleRecording() {
+    if (isBusy) return;
+    if (!isRecording) await startRecording();
+    else stopRecording();
+  }
+
+  async function startRecording() {
+    if (isRecording || isBusy) return;
+    isRecording = true;
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+    mediaRecorder.start();
+    startWaveform(stream);
+    document.getElementById('mic-btn').classList.add('recording');
+    document.getElementById('status-dot').classList.add('recording');
+    document.getElementById('status-text').textContent = 'Listening...';
+    document.getElementById('mic-hint').textContent = 'Click mic to stop';
+    document.getElementById('send-btn').style.display = 'none';
+  }
+
+  function stopRecording() {
+    if (!isRecording || !mediaRecorder) return;
+    isRecording = false;
+    mediaRecorder.stop();
+    stream.getTracks().forEach(t => t.stop());
+    stopWaveform();
+    document.getElementById('mic-btn').classList.remove('recording');
+    document.getElementById('status-dot').classList.remove('recording');
+    document.getElementById('status-text').textContent = 'Ready to send';
+    document.getElementById('mic-hint').textContent = 'Click or hold Space to speak';
+    document.getElementById('send-btn').style.display = 'block';
+  }
+
+  function submitRecording() {
+    if (isBusy) return;
+    const blob = new Blob(chunks, { type: 'audio/wav' });
+    document.getElementById('send-btn').style.display = 'none';
+    sendAudio(blob);
+  }
+
+  // --- SPACEBAR ---
+  document.addEventListener('keydown', async (e) => {
+    if (e.code === 'Space' && !e.repeat && !isRecording && !spaceHeld && !isBusy) {
+      e.preventDefault();
+      spaceHeld = true;
+      await startRecording();
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.code === 'Space' && spaceHeld) {
+      e.preventDefault();
+      spaceHeld = false;
+      if (isRecording) {
+        stopRecording();
+        setTimeout(() => submitRecording(), 300);
+      }
+    }
+  });
+
+  // --- SEND ---
+  async function sendAudio(blob) {
+    hideEmpty();
+    isBusy = true;
+    setMicEnabled(false);
+    document.getElementById('status-text').textContent = 'Processing...';
+
+    const formData = new FormData();
+    formData.append('audio', blob, 'recording.wav');
+
+    try {
+      const res = await fetch('/chat', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.error) {
+        isBusy = false;
+        setMicEnabled(true);
+        document.getElementById('status-text').textContent = 'Ready';
+        return;
+      }
+
+      addMessage('user', data.user_text);
+      const thinkingMsg = addMessage('assistant', null, true);
+      updateMessage(thinkingMsg, data.reply, data.audio_url);
+
+      if (data.audio_url) {
+        document.getElementById('status-text').textContent = 'Speaking...';
+        if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+        currentAudio = new Audio(data.audio_url);
+        currentAudio.play();
+        currentAudio.onended = () => {
+          currentAudio = null;
+          isBusy = false;
+          setMicEnabled(true);
+          document.getElementById('status-text').textContent = 'Ready';
+        };
+        currentAudio.onerror = () => {
+          currentAudio = null;
+          isBusy = false;
+          setMicEnabled(true);
+          document.getElementById('status-text').textContent = 'Ready';
+        };
+      } else {
+        isBusy = false;
+        setMicEnabled(true);
+        document.getElementById('status-text').textContent = 'Ready';
+      }
+
+    } catch (err) {
+      isBusy = false;
+      setMicEnabled(true);
+      document.getElementById('status-text').textContent = 'Error - try again';
+      console.error(err);
+    }
+  }
+
+  // --- HELPERS ---
+  function hideEmpty() {
+    const e = document.getElementById('empty-state');
+    if (e) e.remove();
+  }
+
+  function addMessage(role, text, thinking = false) {
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'message ' + role;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'user' ? 'You' : 'Ank';
+
+    const body = document.createElement('div');
+    body.className = 'msg-body';
+
+    const label = document.createElement('div');
+    label.className = 'msg-label';
+    label.textContent = role === 'user' ? 'You' : 'Ank';
+
+    const textDiv = document.createElement('div');
+    textDiv.className = 'msg-text';
+
+    if (thinking) {
+      textDiv.innerHTML = '<div class="thinking"><span></span><span></span><span></span></div>';
+    } else {
+      textDiv.textContent = text;
+    }
+
+    body.appendChild(label);
+    body.appendChild(textDiv);
+    div.appendChild(avatar);
+    div.appendChild(body);
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+  }
+
+  function updateMessage(div, text, audioUrl) {
+    div.querySelector('.msg-text').textContent = text;
+    if (audioUrl) {
+      const btn = document.createElement('button');
+      btn.className = 'play-btn';
+      btn.textContent = 'Play again';
+      btn.onclick = () => new Audio(audioUrl).play();
+      div.querySelector('.msg-body').appendChild(btn);
+    }
+    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+  }
+
+  async function resetChat() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    isBusy = false;
+    await fetch('/reset', { method: 'POST' });
+    document.getElementById('chat').innerHTML = '<div class="empty-state" id="empty-state"><div class="big-text">Say something.</div><p>Click the mic or hold Space</p></div>';
+    document.getElementById('status-text').textContent = 'Ready';
+    document.getElementById('send-btn').style.display = 'none';
+    setMicEnabled(true);
+  }
+</script>
+</body>
+</html>
