@@ -3,14 +3,6 @@ Conversational AI Assistant with Speech Interface
 --------------------------------------------------
 Run this file to start the assistant:  python main.py
 
-Flow per turn:
-  1. Record microphone audio
-  2. Transcribe speech → text (Whisper)
-  3. Send text + history to LLM (GPT-4o-mini)
-  4. Convert LLM reply → speech (gTTS)
-  5. Play audio back through speakers
-  6. Repeat
-
 Say "goodbye", "exit", or "quit" to stop.
 """
 
