@@ -388,6 +388,119 @@
   }
 
   #send-btn:hover { background: rgba(200,184,255,0.15); }
+  /* ── MOBILE RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 640px) {
+  
+  .message.user,
+  .message.assistant {
+    max-width: 95%;
+    margin-left: 2% !important;
+    margin-right: 2% !important;
+  }
+
+  #chat {
+    padding: 12px 10px;
+    gap: 6px;
+  }
+
+  .message {
+    max-width: 92%;
+    padding: 12px 14px;
+  }
+
+  .message.user {
+    margin-right: 1%;
+    margin-left: auto;
+  }
+
+  .message.assistant {
+    margin-left: 1%;
+    margin-right: auto;
+  }
+
+  header {
+    padding: 14px 16px;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+
+  .logo-by {
+    font-size: 0.55rem;
+  }
+
+  .reset-btn {
+    font-size: 0.6rem;
+    padding: 5px 10px;
+  }
+
+  .status-pill {
+    font-size: 0.6rem;
+  }
+
+  #chat {
+    padding: 16px;
+    gap: 6px;
+  }
+
+  .message {
+    max-width: 85%;
+    padding: 12px 14px;
+  }
+
+  .message.user {
+    margin-right: 2%;
+  }
+
+  .message.assistant {
+    margin-left: 2%;
+  }
+
+  .msg-text {
+    font-size: 0.82rem;
+  }
+
+  .empty-state .big-text {
+    font-size: 1.8rem;
+  }
+
+  .empty-state p {
+    font-size: 0.65rem;
+  }
+
+  .bottom {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  #mic-btn {
+    width: 72px;
+    height: 72px;
+  }
+
+  #mic-btn svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mic-hint {
+    font-size: 0.6rem;
+  }
+
+  #send-btn {
+    font-size: 0.65rem;
+    padding: 8px 24px;
+  }
+
+  #waveform {
+    gap: 2px;
+  }
+
+  .wave-bar {
+    width: 2px;
+  }
+}
 </style>
 </head>
 <body>
