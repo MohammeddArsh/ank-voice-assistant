@@ -3,8 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ── Switch between "local" and "openai" ──────────────────────────────────────
-MODE = "openai"   # "local" = Ollama + faster-whisper | "openai" = GPT + Whisper API
+# Set MODE as an environment variable in Railway/Render dashboard
+# Defaults to "openai" if not set
+MODE = os.getenv("MODE", "openai")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
