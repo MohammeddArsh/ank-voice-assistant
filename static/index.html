@@ -42,6 +42,99 @@
     z-index: 0;
   }
 
+  /* CONSENT BANNER */
+  #consent-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+
+  .consent-box {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 36px;
+    max-width: 480px;
+    width: 100%;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .consent-box h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .consent-box .consent-sub {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .consent-box p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .consent-box p strong { color: var(--text); }
+
+  .consent-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  .consent-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .consent-accept {
+    flex: 1;
+    background: var(--accent-dim);
+    border: 1px solid rgba(200,184,255,0.25);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .consent-accept:hover { background: rgba(200,184,255,0.15); }
+
+  .consent-decline {
+    background: none;
+    border: 1px solid var(--border-light);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .consent-decline:hover { color: var(--text); }
+
   /* HEADER */
   header {
     display: flex;
@@ -54,11 +147,7 @@
     flex-shrink: 0;
   }
 
-  .logo-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
+  .logo-wrap { display: flex; flex-direction: column; gap: 2px; }
 
   .logo {
     font-family: 'DM Serif Display', serif;
@@ -77,9 +166,12 @@
     text-transform: uppercase;
   }
 
-  .logo-by strong {
-    color: var(--text);
-    font-weight: 500;
+  .logo-by strong { color: var(--text); font-weight: 500; }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .status-pill {
@@ -93,8 +185,7 @@
   }
 
   .status-dot {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--success);
     box-shadow: 0 0 8px var(--success);
@@ -111,7 +202,7 @@
     50% { opacity: 0.4; }
   }
 
-  .reset-btn {
+  .header-btn {
     background: none;
     border: 1px solid var(--border-light);
     color: var(--muted);
@@ -125,9 +216,41 @@
     transition: all 0.2s;
   }
 
-  .reset-btn:hover {
-    color: var(--text);
+  .header-btn:hover { color: var(--text); background: var(--surface); }
+
+  /* ANALYTICS BAR */
+  #analytics-bar {
+    display: none;
+    align-items: center;
+    gap: 20px;
+    padding: 8px 32px;
+    border-bottom: 1px solid var(--border);
     background: var(--surface);
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  #analytics-bar.visible { display: flex; }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-label {
+    font-size: 0.55rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .stat-value {
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 500;
   }
 
   /* CHAT AREA */
@@ -206,8 +329,7 @@
   }
 
   .msg-avatar {
-    width: 28px;
-    height: 28px;
+    width: 28px; height: 28px;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -314,6 +436,7 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
+
   #waveform.active { opacity: 1; }
 
   .wave-bar {
@@ -388,122 +511,51 @@
   }
 
   #send-btn:hover { background: rgba(200,184,255,0.15); }
-  /* ── MOBILE RESPONSIVE ─────────────────────────────── */
+
+  /* MOBILE */
   @media (max-width: 640px) {
-  
-  .message.user,
-  .message.assistant {
-    max-width: 95%;
-    margin-left: 2% !important;
-    margin-right: 2% !important;
+    header { padding: 14px 16px; }
+    .logo { font-size: 1.1rem; }
+    .logo-by { font-size: 0.55rem; }
+    .header-btn { font-size: 0.6rem; padding: 5px 10px; }
+    .status-pill { font-size: 0.6rem; }
+    #chat { padding: 12px 8px; gap: 6px; }
+    .message { max-width: 92%; padding: 10px 12px; }
+    .message.user { margin-right: 1% !important; margin-left: auto !important; }
+    .message.assistant { margin-left: 1% !important; margin-right: auto !important; }
+    .msg-avatar { display: none; }
+    .msg-body { width: 100%; min-width: 0; }
+    .msg-text { font-size: 0.82rem; word-break: break-word; overflow-wrap: break-word; }
+    .empty-state .big-text { font-size: 1.8rem; }
+    .bottom { padding: 16px; gap: 12px; }
+    #mic-btn { width: 72px; height: 72px; }
+    #mic-btn svg { width: 26px; height: 26px; }
+    .mic-hint { font-size: 0.6rem; }
+    #analytics-bar { padding: 8px 16px; gap: 12px; }
   }
-
-  #chat {
-    padding: 12px 10px;
-    gap: 6px;
-  }
-
-  .message {
-    max-width: 92%;
-    padding: 12px 14px;
-  }
-
-  .message.user {
-    margin-right: 1%;
-    margin-left: auto;
-  }
-
-  .message.assistant {
-    margin-left: 1%;
-    margin-right: auto;
-  }
-
-  header {
-    padding: 14px 16px;
-  }
-
-  .logo {
-    font-size: 1.1rem;
-  }
-
-  .logo-by {
-    font-size: 0.55rem;
-  }
-
-  .reset-btn {
-    font-size: 0.6rem;
-    padding: 5px 10px;
-  }
-
-  .status-pill {
-    font-size: 0.6rem;
-  }
-
-  #chat {
-    padding: 16px;
-    gap: 6px;
-  }
-
-  .message {
-    max-width: 85%;
-    padding: 12px 14px;
-  }
-
-  .message.user {
-    margin-right: 2%;
-  }
-
-  .message.assistant {
-    margin-left: 2%;
-  }
-
-  .msg-text {
-    font-size: 0.82rem;
-  }
-
-  .empty-state .big-text {
-    font-size: 1.8rem;
-  }
-
-  .empty-state p {
-    font-size: 0.65rem;
-  }
-
-  .bottom {
-    padding: 16px;
-    gap: 12px;
-  }
-
-  #mic-btn {
-    width: 72px;
-    height: 72px;
-  }
-
-  #mic-btn svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .mic-hint {
-    font-size: 0.6rem;
-  }
-
-  #send-btn {
-    font-size: 0.65rem;
-    padding: 8px 24px;
-  }
-
-  #waveform {
-    gap: 2px;
-  }
-
-  .wave-bar {
-    width: 2px;
-  }
-}
 </style>
 </head>
 <body>
+
+<!-- CONSENT BANNER -->
+<div id="consent-overlay">
+  <div class="consent-box">
+    <h2>Before we begin</h2>
+    <div class="consent-sub">Data & Privacy Notice</div>
+    <p>This assistant uses <strong>OpenAI's API</strong> to process your voice input. By continuing, you acknowledge:</p>
+    <p>
+      Your <strong>voice audio</strong> is sent to OpenAI's Whisper API for transcription.<br>
+      Your <strong>conversation text</strong> is sent to GPT-4o-mini to generate responses.<br>
+      <strong>No data is stored permanently</strong> on this server. Session logs are anonymised and used only for research purposes.
+    </p>
+    <hr class="consent-divider">
+    <p>For more information, see <strong>OpenAI's privacy policy</strong> at openai.com/privacy.</p>
+    <div class="consent-actions">
+      <button class="consent-accept" onclick="acceptConsent()">I Understand — Continue</button>
+      <button class="consent-decline" onclick="declineConsent()">Decline</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="logo-wrap">
@@ -514,8 +566,39 @@
     <div class="status-dot" id="status-dot"></div>
     <span id="status-text">Ready</span>
   </div>
-  <button class="reset-btn" onclick="resetChat()">New Chat</button>
+  <div class="header-right">
+    <button class="header-btn" onclick="toggleAnalytics()">Stats</button>
+    <button class="header-btn" onclick="resetChat()">New Chat</button>
+  </div>
 </header>
+
+<!-- ANALYTICS BAR -->
+<div id="analytics-bar">
+  <div class="stat">
+    <div class="stat-label">Turns</div>
+    <div class="stat-value" id="stat-turns">0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Session Time</div>
+    <div class="stat-value" id="stat-duration">0s</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Avg Response</div>
+    <div class="stat-value" id="stat-avg">—</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Fastest</div>
+    <div class="stat-value" id="stat-min">—</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Slowest</div>
+    <div class="stat-value" id="stat-max">—</div>
+  </div>
+  <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+    <button class="header-btn" onclick="exportData('json')" title="Download session as JSON">Export JSON</button>
+    <button class="header-btn" onclick="exportData('csv')" title="Download session as CSV">Export CSV</button>
+  </div>
+</div>
 
 <div id="chat">
   <div class="empty-state" id="empty-state">
@@ -541,17 +624,50 @@
 </div>
 
 <script>
+  // --- CONSENT ---
+  function acceptConsent() {
+    document.getElementById('consent-overlay').style.display = 'none';
+    sessionStorage.setItem('consent', 'accepted');
+  }
+
+  function declineConsent() {
+    document.getElementById('consent-overlay').innerHTML =
+      '<div class="consent-box"><h2>Session ended.</h2><p style="margin-top:16px">You declined data processing. Please close this tab.<br><br>No data has been collected.</p></div>';
+  }
+
+  // Show consent on every fresh session
+  if (sessionStorage.getItem('consent') === 'accepted') {
+    document.getElementById('consent-overlay').style.display = 'none';
+  }
+
+  // --- ANALYTICS ---
+  let analyticsVisible = false;
+
+  function toggleAnalytics() {
+    analyticsVisible = !analyticsVisible;
+    document.getElementById('analytics-bar').classList.toggle('visible', analyticsVisible);
+  }
+
+  function updateAnalytics(data) {
+    if (!data || !data.total_turns) return;
+    document.getElementById('stat-turns').textContent = data.total_turns;
+    document.getElementById('stat-duration').textContent = data.session_duration_s + 's';
+    document.getElementById('stat-avg').textContent = data.avg_response_time_ms + 'ms';
+    document.getElementById('stat-min').textContent = data.min_response_time_ms + 'ms';
+    document.getElementById('stat-max').textContent = data.max_response_time_ms + 'ms';
+  }
+
   // --- WAVEFORM ---
-const waveform = document.getElementById('waveform');
-const BAR_COUNT = 28;
-const bars = [];
-waveform.innerHTML = ''; // clear any stray content
-for (let i = 0; i < BAR_COUNT; i++) {
-  const b = document.createElement('div');
-  b.className = 'wave-bar';
-  waveform.appendChild(b);
-  bars.push(b);
-}
+  const waveform = document.getElementById('waveform');
+  const BAR_COUNT = 30;
+  const bars = [];
+  waveform.innerHTML = '';
+  for (let i = 0; i < BAR_COUNT; i++) {
+    const b = document.createElement('div');
+    b.className = 'wave-bar';
+    waveform.appendChild(b);
+    bars.push(b);
+  }
 
   let waveInterval = null;
 
@@ -564,16 +680,16 @@ for (let i = 0; i < BAR_COUNT; i++) {
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
     waveform.classList.add('active');
     waveInterval = setInterval(() => {
-    analyser.getByteFrequencyData(dataArray);
-    const half = BAR_COUNT / 2;
-    bars.forEach((bar, i) => {
-    const distFromCenter = Math.abs(i - half + 0.5);
-    const idx = Math.floor(distFromCenter * dataArray.length / half);
-    const val = dataArray[Math.min(idx, dataArray.length - 1)] / 255;
-    bar.style.height = Math.max(4, val * 28) + 'px';
-    bar.style.opacity = 0.15 + val * 0.85;
-  });
-  }, 60);
+      analyser.getByteFrequencyData(dataArray);
+      const half = BAR_COUNT / 2;
+      bars.forEach((bar, i) => {
+        const distFromCenter = Math.abs(i - half + 0.5);
+        const idx = Math.floor(distFromCenter * dataArray.length / half);
+        const val = dataArray[Math.min(idx, dataArray.length - 1)] / 255;
+        bar.style.height = Math.max(4, val * 28) + 'px';
+        bar.style.opacity = 0.15 + val * 0.85;
+      });
+    }, 60);
   }
 
   function stopWaveform() {
@@ -686,6 +802,9 @@ for (let i = 0; i < BAR_COUNT; i++) {
       const thinkingMsg = addMessage('assistant', null, true);
       updateMessage(thinkingMsg, data.reply, data.audio_url);
 
+      // Update analytics
+      if (data.analytics) updateAnalytics(data.analytics);
+
       if (data.audio_url) {
         document.getElementById('status-text').textContent = 'Speaking...';
         if (currentAudio) { currentAudio.pause(); currentAudio = null; }
@@ -777,7 +896,22 @@ for (let i = 0; i < BAR_COUNT; i++) {
     document.getElementById('status-text').textContent = 'Ready';
     document.getElementById('send-btn').style.display = 'none';
     setMicEnabled(true);
+    updateAnalytics({});
+    document.getElementById('stat-turns').textContent = '0';
+    document.getElementById('stat-duration').textContent = '0s';
+    document.getElementById('stat-avg').textContent = '—';
+    document.getElementById('stat-min').textContent = '—';
+    document.getElementById('stat-max').textContent = '—';
   }
+  function exportData(format) {
+    if (!document.getElementById('stat-turns').textContent || 
+        document.getElementById('stat-turns').textContent === '0') {
+      alert('No session data to export yet. Have a conversation first!');
+      return;
+    }
+    window.open('/export/' + format, '_blank');
+  }
+
 </script>
 </body>
 </html>
