@@ -77,11 +77,11 @@ async def chat(audio: UploadFile = File(...)):
     memory.trim_if_needed()
 
     start_time = time.time()
-    reply = get_reply(memory.get_messages())
+    reply, token_usage = get_reply(memory.get_messages())
     response_time_ms = (time.time() - start_time) * 1000
 
     memory.add_assistant_message(reply)
-    logger.log_turn(user_text, reply, response_time_ms)
+    logger.log_turn(user_text, reply, response_time_ms, token_usage)
 
     audio_out = speak_to_file(reply)
 

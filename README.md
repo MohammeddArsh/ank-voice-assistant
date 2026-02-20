@@ -5,7 +5,16 @@
 
 ![Ank Demo](docs/demo.png)
 
-🔗 **[Live Demo](https://ank-voice-assistant.onrender.com)**
+---
+
+## Live Demo
+
+| Platform | Link | Status |
+|---|---|---|
+| 🚀 **Railway** (recommended) | [ank-voice-assistant.up.railway.app](https://ank-voice-assistant.up.railway.app) | Always on — instant load |
+| 🌐 **Render** (backup) | [ank-voice-assistant.onrender.com](https://ank-voice-assistant.onrender.com) | May take 30–60s to wake up |
+
+> **Note:** Railway is the primary deployment and loads instantly. Render is a backup, it spins down after 15 minutes of inactivity so the first visit may take up to 60 seconds to wake up. Both run the exact same codebase.
 
 ---
 
@@ -13,7 +22,7 @@
 
 Ank is a full-stack voice assistant that integrates speech recognition, large language model inference, and text-to-speech synthesis into a seamless conversational experience. Built to demonstrate end-to-end AI pipeline integration, from raw microphone audio to spoken AI responses, using production-grade APIs.
 
-The system supports two modes — **OpenAI** (cloud, deployed) and **Local** (Ollama + faster-whisper, offline), switchable with a single config change. It also includes session logging and data export designed to support empirical human-AI interaction research.
+The system supports two modes — **OpenAI** (cloud, deployed) and **Local** (Ollama + faster-whisper, offline) — switchable with a single config change. It also includes session logging, live analytics and data export designed to support empirical human-AI interaction research.
 
 **Live interaction flow:**
 
@@ -30,12 +39,13 @@ Your voice → Whisper STT → GPT-4o-mini → gTTS → Spoken response
 - **Conversational memory** — Remembers full session context across turns
 - **Spoken responses** — Every reply converted to audio and played automatically
 - **Chat history** — Full conversation displayed on screen with replay buttons
-- **Session analytics** — Live stats: turn count, response times, session duration
+- **Session analytics** — Live stats: turn count, response times, session duration, token usage
+- **Token tracking** — Tracks prompt, completion and total tokens per turn and per session
 - **Data export** — Download session data as JSON or CSV for research analysis
-- **Consent banner** — GDPR-aware data usage notice on every session
+- **Consent banner** — GDPR-aware data usage notice shown at the start of every session
 - **Dual mode** — Switch between OpenAI APIs and fully local models
 - **Mobile responsive** — Works on phones and tablets
-- **New Chat** — Resets session, memory and analytics instantly
+- **Auto cleanup** — Temp audio files removed on startup, shutdown and reset
 
 ---
 
@@ -61,7 +71,7 @@ Your voice → Whisper STT → GPT-4o-mini → gTTS → Spoken response
 │    └── audio/tts.py      (gTTS → MP3)               │
 │                                                     │
 │  /audio/{file}    serves generated MP3              │
-│  /reset           clears memory and session         │
+│  /reset           clears memory, session, files     │
 │  /export/json     downloads session as JSON         │
 │  /export/csv      downloads session as CSV          │
 │  /analytics       returns live session stats        │
@@ -78,11 +88,11 @@ Your voice → Whisper STT → GPT-4o-mini → gTTS → Spoken response
 | STT OpenAI | `audio/stt_openai.py` | Transcription via OpenAI Whisper API |
 | STT Local | `audio/stt_local.py` | Transcription via faster-whisper locally |
 | LLM Router | `brain/llm.py` | Routes to OpenAI or Ollama |
-| LLM OpenAI | `brain/llm_openai.py` | GPT-4o-mini via OpenAI API |
+| LLM OpenAI | `brain/llm_openai.py` | GPT-4o-mini via OpenAI API + token tracking |
 | LLM Local | `brain/llm_local.py` | Llama 3.2 via Ollama locally |
 | Memory | `brain/memory.py` | Multi-turn conversation history |
-| Logger | `brain/logger.py` | Session logging, JSON/CSV export |
-| TTS | `audio/tts.py` | Text-to-speech via gTTS + ffplay |
+| Logger | `brain/logger.py` | Session logging, token usage, JSON/CSV export |
+| TTS | `audio/tts.py` | Text-to-speech via gTTS |
 
 ---
 
@@ -93,10 +103,10 @@ Your voice → Whisper STT → GPT-4o-mini → gTTS → Spoken response
 | Backend | Python 3.11, FastAPI, Uvicorn | Async REST API |
 | Speech-to-Text | OpenAI Whisper API / faster-whisper | Cloud or local |
 | LLM | GPT-4o-mini / Ollama + Llama 3.2 | Cloud or local |
-| Text-to-Speech | gTTS + ffplay | Google TTS, free |
+| Text-to-Speech | gTTS | Google TTS, free |
 | Frontend | Vanilla HTML / CSS / JS | No framework, single file |
 | Audio Capture | Web MediaRecorder API | Browser-native |
-| Deployment | Render (Frankfurt EU) | Auto-deploy from GitHub |
+| Deployment | Railway (primary) + Render (backup) | Auto-deploy from GitHub |
 
 ---
 
@@ -187,6 +197,7 @@ ank-voice-assistant/
 ├── app.py                  # FastAPI server, endpoints, temp file cleanup
 ├── config.py               # Mode switch, API keys, model settings
 ├── requirements.txt
+├── railway.json            # Railway deployment config
 ├── render.yaml             # Render deployment config
 ├── static/
 │   └── index.html          # Full web UI — single file
@@ -197,10 +208,10 @@ ank-voice-assistant/
 │   └── tts.py              # Text-to-speech via gTTS
 └── brain/
     ├── llm.py              # LLM router
-    ├── llm_openai.py       # GPT-4o-mini
+    ├── llm_openai.py       # GPT-4o-mini + token usage tracking
     ├── llm_local.py        # Llama 3.2 via Ollama
     ├── memory.py           # Conversation history
-    └── logger.py           # Session logging and data export
+    └── logger.py           # Session logging, token tracking, data export
 ```
 
 ---
@@ -214,27 +225,34 @@ ank-voice-assistant/
 | `GET` | `/audio/{file}` | Serves generated TTS audio |
 | `POST` | `/reset` | Clears memory, session and temp files |
 | `GET` | `/analytics` | Returns live session analytics |
-| `GET` | `/export/json` | Downloads session as JSON |
-| `GET` | `/export/csv` | Downloads session as CSV |
+| `GET` | `/export/json` | Downloads full session as JSON |
+| `GET` | `/export/csv` | Downloads session turns as CSV |
 
 ---
 
 ## Research & Data Collection
 
-Each session is automatically logged to `logs/session_YYYYMMDD_HHMMSS.json` containing full turn history, timestamps and response time metrics. Sessions can be exported directly from the UI as JSON or CSV for offline analysis.
+Each session is automatically logged to `logs/session_YYYYMMDD_HHMMSS.json` containing:
 
-This feature is designed to support empirical studies on human-AI dialogue interaction — tracking conversation patterns, response latency, and turn-taking behaviour across sessions.
+- Full turn-by-turn conversation history
+- Timestamps for every message
+- Response latency per turn (ms)
+- Token usage per turn — prompt, completion and total
+- Aggregated session statistics
+
+Sessions can be exported directly from the UI as **JSON** or **CSV** for offline analysis. This is designed to support empirical studies on human-AI dialogue interaction — tracking conversation patterns, response latency, token consumption and turn-taking behaviour across sessions.
 
 ---
 
 ## Privacy & Ethics
 
-- A consent banner is shown at the start of every session explaining data usage
+- A consent banner is shown at the start of every session explaining data usage clearly
 - Voice audio is sent to OpenAI Whisper API for transcription
 - Conversation text is sent to GPT-4o-mini to generate responses
 - No data is stored permanently on the server
-- Session logs are saved locally and never shared with third parties
+- Session logs are saved locally only and never shared with third parties
 - The local mode option allows fully offline operation with zero data leaving the device
+- Users can decline consent — no data is collected if declined
 
 ---
 
