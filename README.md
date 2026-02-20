@@ -11,9 +11,9 @@
 
 ## Overview
 
-Ank is a full-stack voice assistant that integrates speech recognition, large language model inference, and text-to-speech synthesis into a seamless conversational experience. Built to demonstrate end-to-end AI pipeline integration — from raw microphone audio to spoken AI responses — using production-grade APIs.
+Ank is a full-stack voice assistant that integrates speech recognition, large language model inference, and text-to-speech synthesis into a seamless conversational experience. Built to demonstrate end-to-end AI pipeline integration, from raw microphone audio to spoken AI responses, using production-grade APIs.
 
-The system supports two modes — **OpenAI** (cloud, deployed) and **Local** (Ollama + faster-whisper, offline) — switchable with a single config change. It also includes session logging and data export designed to support empirical human-AI interaction research.
+The system supports two modes — **OpenAI** (cloud, deployed) and **Local** (Ollama + faster-whisper, offline), switchable with a single config change. It also includes session logging and data export designed to support empirical human-AI interaction research.
 
 **Live interaction flow:**
 
