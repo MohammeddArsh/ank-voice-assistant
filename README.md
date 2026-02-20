@@ -3,7 +3,7 @@
 > A full-stack conversational AI assistant with a speech interface, built with Python and a clean dark web UI.
 > Speak naturally, get intelligent responses spoken back to you in real time.
 
-![Ank Demo](demo/demo.png)
+![Ank Demo](docs/demo.png)
 
 🔗 **[Live Demo](https://ank-voice-assistant.onrender.com)**
 
