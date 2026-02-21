@@ -133,6 +133,12 @@ def export_csv():
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+@app.head("/health")
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 # Mount static LAST so it doesn't intercept API routes
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
