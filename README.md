@@ -11,10 +11,10 @@
 
 | Platform | Link | Status |
 |---|---|---|
-| 🚀 **Railway** (recommended) | [ank-voice-assistant.up.railway.app](https://ank-voice-assistant.up.railway.app) | Always on — instant load |
-| 🌐 **Render** (backup) | [ank-voice-assistant.onrender.com](https://ank-voice-assistant.onrender.com) | May take 30–60s to wake up |
+| 🚀 **Render** (primary) | [ank-voice-assistant.onrender.com](https://ank-voice-assistant.onrender.com) | Always on — kept alive via UptimeRobot |
+| 🚄 **Railway** (backup) | [ank-voice-assistant.up.railway.app](https://ank-voice-assistant.up.railway.app) | Active until March 2026, then expires |
 
-> **Note:** Railway is the primary deployment and loads instantly. Render is a backup, it spins down after 15 minutes of inactivity so the first visit may take up to 60 seconds to wake up. Both run the exact same codebase.
+> **Note:** Render is the primary deployment, kept always on using UptimeRobot health checks. Railway is a backup that runs until the free trial expires in March 2026.
 
 ---
 
@@ -106,7 +106,7 @@ Your voice → Whisper STT → GPT-4o-mini → gTTS → Spoken response
 | Text-to-Speech | gTTS | Google TTS, free |
 | Frontend | Vanilla HTML / CSS / JS | No framework, single file |
 | Audio Capture | Web MediaRecorder API | Browser-native |
-| Deployment | Railway (primary) + Render (backup) | Auto-deploy from GitHub |
+| Deployment | Render + UptimeRobot / Railway | Auto-deploy from GitHub, always on via health check pings |
 
 ---
 
